@@ -1,4 +1,4 @@
-// ID 配列を変換する純粋関数。updateItem に渡せるようカリー化している
+// updateItem に渡せるようカリー化している
 
 type IdsUpdater = (ids: readonly string[]) => (current: readonly string[]) => string[];
 
