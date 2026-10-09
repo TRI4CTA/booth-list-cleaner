@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm check)",
+      "Bash(pnpm lint)",
+      "Bash(pnpm format)",
+      "Bash(pnpm typecheck)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm build)",
+      "Bash(pnpm exec vitest:*)",
+      "Bash(pnpm exec wxt prepare)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git push:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(rm -rf:*)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  }
+}
