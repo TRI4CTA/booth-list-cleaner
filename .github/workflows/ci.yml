@@ -7,7 +7,13 @@ on:
 
 jobs:
   check:
+    name: ${{ matrix.task }}
     runs-on: ubuntu-latest
+    strategy:
+      # 1つが失敗しても他の結果を確認できるようにする
+      fail-fast: false
+      matrix:
+        task: [lint, typecheck, test, build]
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -18,7 +24,4 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
-      - run: pnpm build
+      - run: pnpm ${{ matrix.task }}
