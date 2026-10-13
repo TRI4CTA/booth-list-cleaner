@@ -18,7 +18,6 @@ booth(booth.pm)のリストを自動で整理するgoogle拡張機能
 - `entrypoints/` — WXT のエントリポイント。ファイル名で種別が決まる
   - `content.ts` — booth.pm に注入されるコンテンツスクリプト
   - `background.ts` — Service Worker
-  - `popup/` — ツールバーのポップアップ
 - `utils/` — 共有ロジック（自動 import 対象）。DOM 操作ロジックはここに置く
 - `tests/` — テスト（`*.test.ts`）。対象は `@/utils/...` で import する
 - `wxt.config.ts` — manifest（権限・名前など）はここで定義する。`public/manifest.json` は作らない
