@@ -1,6 +1,13 @@
-// ギフト受け取り画面で追加する
-export const pendingRemovalIdsItem = storage.defineItem<string[]>("local:pendingRemovalIds", {
+import type { PendingGift } from "@/utils/pendingGifts";
+
+// ギフト受け取り画面で追加し、好きリストで移すか残すかが決まったら消す
+export const pendingGiftsItem = storage.defineItem<PendingGift[]>("local:pendingGifts", {
   fallback: [],
+});
+
+// オプションページで設定する。空のときは何もしない
+export const targetListNameItem = storage.defineItem<string>("local:targetListName", {
+  fallback: "",
 });
 
 type Item<T> = {

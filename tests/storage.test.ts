@@ -1,20 +1,21 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { fakeBrowser } from "wxt/testing/fake-browser";
-import { addIds, removeIds } from "@/utils/ids";
-import { pendingRemovalIdsItem, updateItem } from "@/utils/storage";
+import { addGift, removeItems } from "@/utils/pendingGifts";
+import { pendingGiftsItem, updateItem } from "@/utils/storage";
 
-describe("pendingRemovalIdsItem", () => {
+describe("pendingGiftsItem", () => {
   beforeEach(() => {
     fakeBrowser.reset();
   });
 
   it("初期値は空配列", async () => {
-    expect(await pendingRemovalIdsItem.getValue()).toEqual([]);
+    expect(await pendingGiftsItem.getValue()).toEqual([]);
   });
 
   it("updateItem で追加・削除した結果が保存される", async () => {
-    await updateItem(pendingRemovalIdsItem, addIds(["1", "2", "3"]));
-    await updateItem(pendingRemovalIdsItem, removeIds(["2"]));
-    expect(await pendingRemovalIdsItem.getValue()).toEqual(["1", "3"]);
+    await updateItem(pendingGiftsItem, addGift({ itemId: "1", title: "A (a)" }));
+    await updateItem(pendingGiftsItem, addGift({ itemId: "2", title: "B (b)" }));
+    await updateItem(pendingGiftsItem, removeItems(["1"]));
+    expect(await pendingGiftsItem.getValue()).toEqual([{ itemId: "2", title: "B (b)" }]);
   });
 });

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import giftHtml from "./fixtures/gift.html?raw";
-import { getAcceptForm, getGiftItemId, isGiftPage, runBeforeAccept } from "@/utils/gift";
+import { getAcceptForm, getGift, isGiftPage, runBeforeAccept } from "@/utils/gift";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -20,8 +20,11 @@ describe("受け取り前画面", () => {
     document.body.innerHTML = giftHtml;
   });
 
-  it("商品IDを取得する", () => {
-    expect(getGiftItemId(document)).toBe("1234567");
+  it("商品IDと表示されている商品名を取得する", () => {
+    expect(getGift(document)).toEqual({
+      itemId: "1234567",
+      title: "商品タイトル (バリエーション名)",
+    });
   });
 
   it("受け取りフォームを取得する", () => {
@@ -69,9 +72,9 @@ describe("runBeforeAccept", () => {
   });
 });
 
-describe("getGiftItemId", () => {
+describe("getGift", () => {
   it("商品リンクがなければ null", () => {
     document.body.innerHTML = `<a href="https://example-shop.booth.pm/">shop</a>`;
-    expect(getGiftItemId(document)).toBeNull();
+    expect(getGift(document)).toBeNull();
   });
 });
