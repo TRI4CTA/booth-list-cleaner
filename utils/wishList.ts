@@ -40,11 +40,11 @@ export const fetchWishedIds = async (
 };
 
 // 送ったリストの集合で所属が置き換わるので、他のリストや未分類からは外れる
-const moveToList = async (
+export const moveToList = async (
   itemId: string,
   listCode: string,
   token: string,
-  fetchFn: typeof fetch,
+  fetchFn: typeof fetch = fetch,
 ): Promise<boolean> => {
   const res = await fetchFn(listItemsUrl(itemId), {
     method: "PATCH",
@@ -55,18 +55,6 @@ const moveToList = async (
       "X-CSRF-Token": token,
     },
     body: JSON.stringify({ wish_list_name_codes: [listCode] }),
-  });
-  return res.ok;
-};
-
-export const moveAllToList = async (
-  itemIds: readonly string[],
-  listCode: string,
-  token: string,
-  fetchFn: typeof fetch = fetch,
-): Promise<string[]> => {
-  const results = await Promise.all(
-    itemIds.map((id) => moveToList(id, listCode, token, fetchFn).catch(() => false)),
-  );
-  return itemIds.filter((_, i) => results[i]);
+  }).catch(() => null);
+  return res?.ok ?? false;
 };

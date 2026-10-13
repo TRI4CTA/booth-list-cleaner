@@ -8,7 +8,7 @@ import {
   fetchWishedIds,
   getCsrfToken,
   isWishListPage,
-  moveAllToList,
+  moveToList,
 } from "@/utils/wishList";
 
 // ほかのバリエーションがあるときは、それを欲しいかもしれないのでユーザーに聞く
@@ -37,24 +37,22 @@ const organizeWishList = async (): Promise<void> => {
 
   const itemIds = [...new Set(gifts.map((g) => g.itemId))];
   const wished = await fetchWishedIds(itemIds);
+  // スキしていない商品は移す対象がないので、削除予定からも消す
+  await updateItem(pendingGiftsItem, removeItems(itemIds.filter((id) => !wished.includes(id))));
 
-  const toMove: string[] = [];
-  const kept: string[] = [];
-  // ダイアログを1つずつ出すため順に処理する
+  let movedAny = false;
+  // ダイアログを1つずつ出すため順に処理する。途中でタブを閉じても答えた分が失われないよう、
+  // 答えるたびに反映する
   for (const itemId of wished) {
     const choice = await decide(itemId, gifts, listName).catch(() => null);
-    if (choice === "move") toMove.push(itemId);
-    if (choice === "keep") kept.push(itemId);
+    const done =
+      choice === "keep" || (choice === "move" && (await moveToList(itemId, listCode, token)));
+    if (done) await updateItem(pendingGiftsItem, removeItems([itemId]));
+    if (done && choice === "move") movedAny = true;
   }
 
-  const moved = await moveAllToList(toMove, listCode, token);
-  // スキしていない商品は移す対象がないので、削除予定からも消す
-  const notWished = itemIds.filter((id) => !wished.includes(id));
-  await updateItem(pendingGiftsItem, removeItems([...moved, ...kept, ...notWished]));
-  console.log(`[booth-list-cleaner] moved to "${listName}": ${moved.join(", ")}`);
-
   // 移せた ID は削除予定から消えているので、再読み込みしても同じ処理を繰り返さない
-  if (moved.length > 0) location.reload();
+  if (movedAny) location.reload();
 };
 
 export default defineContentScript({

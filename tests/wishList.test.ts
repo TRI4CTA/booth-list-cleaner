@@ -4,7 +4,7 @@ import {
   fetchWishedIds,
   getCsrfToken,
   isWishListPage,
-  moveAllToList,
+  moveToList,
 } from "@/utils/wishList";
 
 const response = (status: number) => new Response(null, { status });
@@ -66,10 +66,10 @@ describe("fetchWishedIds", () => {
   });
 });
 
-describe("moveAllToList", () => {
+describe("moveToList", () => {
   it("リストのコードだけを指定して PATCH を送る", async () => {
     const fetchFn = vi.fn().mockResolvedValue(response(200));
-    await moveAllToList(["123"], "bbbbbbbb", "token", fetchFn);
+    expect(await moveToList("123", "bbbbbbbb", "token", fetchFn)).toBe(true);
     expect(fetchFn).toHaveBeenCalledWith("https://booth.pm/items/123/wish_list_items.json", {
       method: "PATCH",
       credentials: "include",
@@ -82,12 +82,12 @@ describe("moveAllToList", () => {
     });
   });
 
-  it("成功した ID だけを返す", async () => {
-    const fetchFn = vi.fn(async (url: string | URL | Request) => {
-      if (String(url).includes("/2/")) return response(422);
-      if (String(url).includes("/3/")) throw new Error("network");
-      return response(200);
-    });
-    expect(await moveAllToList(["1", "2", "3"], "bbbbbbbb", "token", fetchFn)).toEqual(["1"]);
+  it("失敗したら false", async () => {
+    expect(await moveToList("1", "b", "token", vi.fn().mockResolvedValue(response(422)))).toBe(
+      false,
+    );
+    expect(
+      await moveToList("1", "b", "token", vi.fn().mockRejectedValue(new Error("network"))),
+    ).toBe(false);
   });
 });
