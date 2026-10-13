@@ -1,0 +1,54 @@
+<!-- booth.pm/gifts/{uuid} の受け取り前画面（2026-10-13 取得）。ギフト UUID・トークン・商品やショップの情報はダミーに置き換えている -->
+<div class="rounded-16 bg-white p-40 mobile:px-16 mobile:pt-24 mobile:pb-40 mobile:rounded-none">
+  <div class="mx-auto w-[400px] h-[400px] mobile:w-full mobile:h-auto">
+    <img
+      class="object-contain w-full"
+      src="https://booth.pximg.net/example/i/1234567/item_base_square.jpg"
+    />
+  </div>
+  <div class="mt-24 text-left">
+    <a
+      target="_blank"
+      rel="noopener noreferrer"
+      class="no-underline"
+      href="https://example-shop.booth.pm/items/1234567"
+    >
+      <div class="text-black typograply-16 font-bold">商品タイトル</div>
+    </a>
+  </div>
+  <a
+    target="_blank"
+    rel="noopener noreferrer"
+    class="no-underline"
+    href="https://example-shop.booth.pm/"
+  >
+    <div class="mt-8 flex justify-start items-center gap-4">
+      <div class="w-[24px] h-24 rounded-[50%] overflow-hidden shrink-0">
+        <img
+          class="object-contain w-full"
+          src="https://booth.pximg.net/c/48x48/users/example/icon_image.jpg"
+        />
+      </div>
+      <div class="text-text-gray600 typography-14">shop_name</div>
+    </div>
+  </a>
+  <div class="mt-16 border-t border-border300"></div>
+  <div class="w-[311px] mt-24 mx-auto">
+    <form
+      action="/gifts/00000000-0000-0000-0000-000000000000/accept"
+      accept-charset="UTF-8"
+      method="post"
+    >
+      <input type="hidden" name="_method" value="patch" />
+      <input type="hidden" name="authenticity_token" value="TOKEN" />
+      <button
+        name="button"
+        type="submit"
+        class="font-default-family inline-block mb-0 text-center whitespace-nowrap touch-manipulation cursor-pointer bg-none box-border text-base leading-5 select-none w-full font-bold rounded-[100px] p-[20px_20px] border text-white hover:opacity-80 disabled:opacity-[0.32] disabled:hover:opacity-[0.32] bg-primary400 border-primary400"
+      >
+        ギフトを受け取る
+      </button>
+    </form>
+  </div>
+  <div class="mt-16 typography-12 empty:mt-0"></div>
+</div>

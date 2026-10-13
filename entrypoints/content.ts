@@ -1,4 +1,5 @@
-import { removeIds } from "@/utils/ids";
+import { getAcceptForm, getGiftItemId, isGiftPage, runBeforeAccept } from "@/utils/gift";
+import { addIds, removeIds } from "@/utils/ids";
 import { pendingRemovalIdsItem, updateItem } from "@/utils/storage";
 import { getCsrfToken, isWishListPage, removeAllFromWishList } from "@/utils/wishList";
 
@@ -18,6 +19,14 @@ const cleanWishList = async (): Promise<void> => {
 export default defineContentScript({
   matches: ["https://booth.pm/*", "https://*.booth.pm/*"],
   async main() {
-    if (isWishListPage(new URL(location.href))) await cleanWishList();
+    const url = new URL(location.href);
+    if (isWishListPage(url)) await cleanWishList();
+    if (isGiftPage(url)) {
+      const form = getAcceptForm(document);
+      const itemId = getGiftItemId(document);
+      // 受け取らずに閉じた商品は好きリストに残したいので、送信時に保存する
+      if (form && itemId)
+        runBeforeAccept(form, () => updateItem(pendingRemovalIdsItem, addIds([itemId])));
+    }
   },
 });
