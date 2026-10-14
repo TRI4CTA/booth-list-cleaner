@@ -24,7 +24,8 @@ describe("confirmMove", () => {
   it("商品名・ほかのバリエーション・移す先を表示する", () => {
     const { dialog } = open();
     expect(dialog.open).toBe(true);
-    expect(dialog.textContent).toContain("「商品タイトル」をギフトで受け取りました");
+    expect(dialog.textContent).toContain("以下をギフトで受け取りました");
+    expect(dialog.querySelector("h2")?.textContent).toBe("商品タイトル");
     expect(dialog.querySelector("li")?.textContent).toBe("支援版（¥1,300）");
     expect(dialog.textContent).toContain("「購入済み」に移しますか？");
   });
