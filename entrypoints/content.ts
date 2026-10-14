@@ -1,32 +1,70 @@
-import { getAcceptForm, getGiftItemId, isGiftPage, runBeforeAccept } from "@/utils/gift";
-import { addIds, removeIds } from "@/utils/ids";
-import { pendingRemovalIdsItem, updateItem } from "@/utils/storage";
-import { getCsrfToken, isWishListPage, removeAllFromWishList } from "@/utils/wishList";
+import { getAcceptForm, getGift, isGiftPage, runBeforeAccept } from "@/utils/gift";
+import { confirmMove } from "@/utils/moveDialog";
+import { addGift, type PendingGift, removeItems } from "@/utils/pendingGifts";
+import { pendingGiftsItem, targetListNameItem, updateItem } from "@/utils/storage";
+import { fetchItem, otherVariations } from "@/utils/variations";
+import {
+  fetchListCode,
+  fetchWishedIds,
+  getCsrfToken,
+  isWishListPage,
+  moveToList,
+} from "@/utils/wishList";
 
-const cleanWishList = async (): Promise<void> => {
-  const ids = await pendingRemovalIdsItem.getValue();
+// ほかのバリエーションがあるときは、それを欲しいかもしれないのでユーザーに聞く
+const decide = async (
+  itemId: string,
+  gifts: readonly PendingGift[],
+  listName: string,
+): Promise<"move" | "keep" | null> => {
+  const item = await fetchItem(itemId);
+  const titles = gifts.filter((g) => g.itemId === itemId).map((g) => g.title);
+  const others = otherVariations(item.variations, titles);
+  return others.length === 0
+    ? "move"
+    : confirmMove(document, { itemName: item.name, listName, others });
+};
+
+const organizeWishList = async (): Promise<void> => {
+  const gifts = await pendingGiftsItem.getValue();
+  const listName = await targetListNameItem.getValue();
   const token = getCsrfToken(document);
-  if (ids.length === 0 || !token) return;
+  if (gifts.length === 0 || !listName || !token) return;
 
-  const removed = await removeAllFromWishList(ids, token);
-  await updateItem(pendingRemovalIdsItem, removeIds(removed));
-  console.log(`[booth-list-cleaner] removed from wish list: ${removed.join(", ")}`);
+  // リストが見つからないときは、名前が直されたら移せるよう削除予定に残す
+  const listCode = await fetchListCode(listName);
+  if (!listCode) return;
 
-  // 外せた ID は削除予定から消えているので、再読み込みしても同じ削除を繰り返さない
-  if (removed.length > 0) location.reload();
+  const itemIds = [...new Set(gifts.map((g) => g.itemId))];
+  const wished = await fetchWishedIds(itemIds);
+  // スキしていない商品は移す対象がないので、削除予定からも消す
+  await updateItem(pendingGiftsItem, removeItems(itemIds.filter((id) => !wished.includes(id))));
+
+  let movedAny = false;
+  // ダイアログを1つずつ出すため順に処理する。途中でタブを閉じても答えた分が失われないよう、
+  // 答えるたびに反映する
+  for (const itemId of wished) {
+    const choice = await decide(itemId, gifts, listName).catch(() => null);
+    const done =
+      choice === "keep" || (choice === "move" && (await moveToList(itemId, listCode, token)));
+    if (done) await updateItem(pendingGiftsItem, removeItems([itemId]));
+    if (done && choice === "move") movedAny = true;
+  }
+
+  // 移せた ID は削除予定から消えているので、再読み込みしても同じ処理を繰り返さない
+  if (movedAny) location.reload();
 };
 
 export default defineContentScript({
   matches: ["https://booth.pm/*", "https://*.booth.pm/*"],
   async main() {
     const url = new URL(location.href);
-    if (isWishListPage(url)) await cleanWishList();
+    if (isWishListPage(url)) await organizeWishList();
     if (isGiftPage(url)) {
       const form = getAcceptForm(document);
-      const itemId = getGiftItemId(document);
+      const gift = getGift(document);
       // 受け取らずに閉じた商品は好きリストに残したいので、送信時に保存する
-      if (form && itemId)
-        runBeforeAccept(form, () => updateItem(pendingRemovalIdsItem, addIds([itemId])));
+      if (form && gift) runBeforeAccept(form, () => updateItem(pendingGiftsItem, addGift(gift)));
     }
   },
 });

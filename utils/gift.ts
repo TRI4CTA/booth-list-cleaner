@@ -1,3 +1,5 @@
+import type { PendingGift } from "@/utils/pendingGifts";
+
 const ACCEPT_FORM_SELECTOR = 'form[action$="/accept"]';
 // 受け取り前の画面で /items/ へのリンクはギフト対象の商品だけ
 const ITEM_LINK_SELECTOR = 'a[href*="/items/"]';
@@ -22,8 +24,9 @@ export const runBeforeAccept = (form: HTMLFormElement, task: () => Promise<void>
   );
 };
 
-export const getGiftItemId = (root: ParentNode): string | null =>
-  root
-    .querySelector(ITEM_LINK_SELECTOR)
-    ?.getAttribute("href")
-    ?.match(/\/items\/(\d+)/)?.[1] ?? null;
+export const getGift = (root: ParentNode): PendingGift | null => {
+  const link = root.querySelector(ITEM_LINK_SELECTOR);
+  const itemId = link?.getAttribute("href")?.match(/\/items\/(\d+)/)?.[1];
+  const title = link?.textContent?.trim();
+  return itemId && title ? { itemId, title } : null;
+};
