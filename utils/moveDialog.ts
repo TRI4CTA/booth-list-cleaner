@@ -2,7 +2,7 @@ import type { Variation } from "@/utils/variations";
 
 type Choice = "move" | "keep";
 
-type Params = { itemName: string; listName: string; others: readonly Variation[] };
+type Params = { itemName: string; ownedListName: string; others: readonly Variation[] };
 
 const element = <K extends keyof HTMLElementTagNameMap>(
   doc: Document,
@@ -22,7 +22,7 @@ const button = (doc: Document, text: string, onClick: () => void): HTMLButtonEle
 };
 
 // 商品名などはショップが付けた文字列なので、innerHTML を使わず textContent で入れる
-const build = (doc: Document, { itemName, listName, others }: Params): HTMLDialogElement => {
+const build = (doc: Document, { itemName, ownedListName, others }: Params): HTMLDialogElement => {
   const dialog = element(doc, "dialog");
   // ページ側の CSS の余白を受けないよう、間隔は gap だけで決める。閉じたら取り除くので常に flex でよい
   dialog.style.cssText =
@@ -38,7 +38,7 @@ const build = (doc: Document, { itemName, listName, others }: Params): HTMLDialo
   buttons.style.cssText = "display: flex; gap: 8px; justify-content: flex-end;";
   buttons.append(
     button(doc, "好きリストに残す", () => dialog.close("keep")),
-    button(doc, `「${listName}」に移す`, () => dialog.close("move")),
+    button(doc, `「${ownedListName}」に移す`, () => dialog.close("move")),
   );
 
   dialog.append(
@@ -46,7 +46,7 @@ const build = (doc: Document, { itemName, listName, others }: Params): HTMLDialo
     element(doc, "h2", itemName),
     element(doc, "p", "この商品にはほかにも次のバリエーションがあります。"),
     list,
-    element(doc, "p", `「${listName}」に移しますか？`),
+    element(doc, "p", `「${ownedListName}」に移しますか？`),
     buttons,
   );
   for (const child of dialog.children) (child as HTMLElement).style.margin = "0";
