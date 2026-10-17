@@ -6,7 +6,7 @@ export const pendingGiftsItem = storage.defineItem<PendingGift[]>("local:pending
 });
 
 // オプションページで設定する。空のときは何もしない
-export const targetListNameItem = storage.defineItem<string>("local:targetListName", {
+export const ownedListNameItem = storage.defineItem<string>("local:targetListName", {
   fallback: "",
 });
 

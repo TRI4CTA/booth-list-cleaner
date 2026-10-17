@@ -3,7 +3,7 @@ import { confirmMove } from "@/utils/moveDialog";
 
 const params = {
   itemName: "商品タイトル",
-  listName: "購入済み",
+  ownedListName: "購入済み",
   others: [{ name: "支援版", price: 1300 }],
 };
 
